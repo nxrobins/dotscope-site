@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dotscope</title>
+<meta name="description" content="Your AI agent doesn't understand your codebase. dotscope fixes that.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='%230078FF' stroke-width='8'/><circle cx='50' cy='50' r='8' fill='%230078FF'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08080a;--surface:#111114;--border:#1e1e24;--text:#f0f0f3;--muted:#8b8b96;--accent:#0078FF;--accent-glow:rgba(0,120,255,0.12);--code-bg:#0f0f14;--green:#34d399;--red:#f87171;--font:'Inter',system-ui,-apple-system,sans-serif}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+::selection{background:var(--accent);color:#fff}
+
+/* Nav — barely there */
+nav{position:fixed;top:0;width:100%;z-index:100;padding:20px 0;background:rgba(8,8,10,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+nav .inner{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between}
+.wordmark{font-size:1.1rem;font-weight:600;color:var(--text);letter-spacing:-0.02em;display:flex;align-items:center;gap:10px}
+.wordmark svg{opacity:0.9}
+.nav-r{display:flex;align-items:center;gap:28px}
+.nav-r a{color:var(--muted);font-size:0.85rem;font-weight:500;transition:color .2s}
+.nav-r a:hover{color:var(--text)}
+.nav-btn{padding:7px 18px;border-radius:6px;background:var(--accent);color:#fff;font-size:0.85rem;font-weight:500;transition:opacity .2s}
+.nav-btn:hover{opacity:0.85}
+
+/* Hero — one idea */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 32px 80px;position:relative}
+.hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:700;line-height:1.08;letter-spacing:-0.04em;max-width:800px;position:relative;z-index:1}
+.hero h1 .dim{color:var(--muted)}
+.hero-install{margin-top:48px;position:relative;z-index:1}
+.hero-install code{display:inline-block;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 32px;font-family:'SF Mono',Monaco,'Cascadia Code',monospace;font-size:1.05rem;color:var(--green);cursor:pointer;transition:border-color .3s,box-shadow .3s}
+.hero-install code:hover{border-color:var(--accent);box-shadow:0 0 30px var(--accent-glow)}
+.hero-install code .p{color:var(--muted)}
+.hero-install .hint{color:var(--muted);font-size:0.8rem;margin-top:12px}
+.hero-install .compat{color:var(--muted);font-size:0.85rem;margin-top:20px;letter-spacing:0.01em}
+.hero-install .compat strong{color:var(--text);font-weight:500}
+
+/* The Problem — show, don't tell */
+.problem{padding:120px 32px;max-width:800px;margin:0 auto}
+.problem h2{font-size:1.6rem;font-weight:600;letter-spacing:-0.03em;margin-bottom:40px;text-align:center;color:var(--muted)}
+.terminal{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-family:'SF Mono',Monaco,'Cascadia Code',monospace;font-size:0.85rem;line-height:1.7}
+.terminal-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px}
+.terminal-bar span{width:12px;height:12px;border-radius:50%;background:var(--border)}
+.terminal-body{padding:20px 24px}
+.t-muted{color:#555}
+.t-red{color:var(--red)}
+.t-green{color:var(--green)}
+.t-blue{color:var(--accent)}
+.t-dim{color:#666}
+.terminal+.terminal{margin-top:24px}
+.vs{text-align:center;padding:32px 0;color:var(--muted);font-size:0.9rem;font-weight:500;text-transform:uppercase;letter-spacing:0.1em}
+
+/* The Insight — one sentence */
+.insight{padding:100px 32px;text-align:center}
+.insight p{font-size:clamp(1.3rem,3vw,2rem);font-weight:600;letter-spacing:-0.03em;max-width:700px;margin:0 auto;line-height:1.35}
+.insight p .accent{color:var(--accent)}
+
+/* How — minimal */
+.how{padding:80px 32px 100px;max-width:900px;margin:0 auto}
+.how h2{font-size:1.6rem;font-weight:600;letter-spacing:-0.03em;text-align:center;margin-bottom:56px}
+.how-steps{display:flex;gap:48px;justify-content:center}
+.how-step{flex:1;max-width:240px}
+.how-step .num{font-size:0.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.how-step h3{font-size:1rem;font-weight:600;margin-bottom:8px}
+.how-step p{color:var(--muted);font-size:0.9rem;line-height:1.5}
+.how-step code{background:var(--code-bg);padding:2px 8px;border-radius:4px;font-size:0.8rem;color:var(--green)}
+
+/* Proof — not metrics, outcomes */
+.proof{padding:80px 32px;border-top:1px solid var(--border)}
+.proof .inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.proof-text h2{font-size:1.6rem;font-weight:600;letter-spacing:-0.03em;margin-bottom:16px}
+.proof-text p{color:var(--muted);font-size:0.95rem;line-height:1.6}
+.proof-nums{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.proof-num{padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.proof-num .n{font-size:1.8rem;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.proof-num .l{color:var(--muted);font-size:0.8rem;margin-top:4px}
+
+/* Enterprise — understated */
+.enterprise{padding:100px 32px;text-align:center;border-top:1px solid var(--border)}
+.enterprise h2{font-size:1.6rem;font-weight:600;letter-spacing:-0.03em;margin-bottom:16px}
+.enterprise p{color:var(--muted);font-size:0.95rem;max-width:520px;margin:0 auto 32px;line-height:1.5}
+.enterprise .cta-row{display:flex;gap:16px;justify-content:center}
+.enterprise .btn{display:inline-block;padding:12px 28px;border-radius:8px;font-size:0.9rem;font-weight:500;transition:all .2s}
+.enterprise .btn-p{background:var(--accent);color:#fff}.enterprise .btn-p:hover{opacity:0.85}
+.enterprise .btn-g{border:1px solid var(--border);color:var(--text)}.enterprise .btn-g:hover{border-color:var(--muted)}
+
+/* Footer */
+footer{padding:32px;text-align:center;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border)}
+footer a{color:var(--muted);}footer a:hover{color:var(--text)}
+
+@media(max-width:768px){
+.how-steps{flex-direction:column;align-items:center}
+.proof .inner{grid-template-columns:1fr}
+.enterprise .cta-row{flex-direction:column;align-items:center}
+nav .nav-r a:not(.nav-btn){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="inner">
+<div class="wordmark">
+<svg width="24" height="24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#0078FF" stroke-width="8"/><circle cx="50" cy="50" r="8" fill="#0078FF"/></svg>
+dotscope
+</div>
+<div class="nav-r">
+<a href="https://github.com/nxrobins/dotscope">GitHub</a>
+<a href="https://pypi.org/project/dotscope/">PyPI</a>
+<a href="https://github.com/nxrobins/dotscope/tree/main/docs">Docs</a>
+<a href="mailto:nigel@supremum.io" class="nav-btn">Contact</a>
+</div>
+</div>
+</nav>
+
+<section class="hero">
+<h1>Your agent doesn't understand<br>your <span class="dim">codebase.</span></h1>
+<div class="hero-install">
+<code onclick="navigator.clipboard.writeText('pip install dotscope');this.querySelector('.hint-text').textContent='copied'"><span class="p">$</span> pip install dotscope</code>
+<div class="hint">click to copy</div>
+<div class="compat">Works with <strong>Cursor</strong> · <strong>Windsurf</strong> · <strong>Claude Code</strong> · <strong>Claude Desktop</strong> · any MCP client</div>
+</div>
+</section>
+
+<section class="problem">
+<h2>This is what happens without structural context.</h2>
+<div class="terminal">
+<div class="terminal-bar"><span></span><span></span><span></span></div>
+<div class="terminal-body">
+<span class="t-muted"># Agent refactors auth.py — looks clean, tests pass</span><br>
+<span class="t-blue">→ Refactoring authenticate() signature</span><br>
+<span class="t-green">✓ auth.py updated</span><br>
+<span class="t-green">✓ auth_test.py passes</span><br><br>
+<span class="t-muted"># What the agent didn't know:</span><br>
+<span class="t-red">✗ 47 downstream files depend on old signature</span><br>
+<span class="t-red">✗ payments/processor.py — implicit contract broken</span><br>
+<span class="t-red">✗ middleware/session.py — silent failure in prod</span><br>
+<span class="t-red">✗ 3 services will crash on next deploy</span><br>
+</div>
+</div>
+
+<div class="vs">with dotscope</div>
+
+<div class="terminal">
+<div class="terminal-bar"><span></span><span></span><span></span></div>
+<div class="terminal-body">
+<span class="t-muted"># Agent queries the same refactor</span><br>
+<span class="t-blue">→ Checking blast radius for authenticate()</span><br>
+<span class="t-dim">  ├─ 47 direct dependents</span><br>
+<span class="t-dim">  ├─ 3 critical paths (payments, session, api-gateway)</span><br>
+<span class="t-dim">  └─ implicit contract: processor.py expects dict return</span><br><br>
+<span class="t-green">→ Refactoring with backward-compatible wrapper</span><br>
+<span class="t-green">✓ auth.py updated — old signature preserved as alias</span><br>
+<span class="t-green">✓ All 47 dependents verified</span><br>
+<span class="t-green">✓ Zero breaking changes</span>
+</div>
+</div>
+</section>
+
+<section class="insight">
+<p>Every context tool gives agents <em>more text.</em><br>dotscope gives them <span class="accent">structure.</span></p>
+</section>
+
+<section class="how">
+<h2>Three commands. Nothing to configure.</h2>
+<div class="how-steps">
+<div class="how-step">
+<div class="num">Install</div>
+<h3><code>pip install dotscope</code></h3>
+<p>One package. No dependencies to manage. No build step.</p>
+</div>
+<div class="how-step">
+<div class="num">Initialize</div>
+<h3><code>dotscope init</code></h3>
+<p>Compiles your repo into a structural topology. Launches the daemon. Generates agent config.</p>
+</div>
+<div class="how-step">
+<div class="num">Done</div>
+<h3>Agent sees architecture</h3>
+<p>Blast radius, dependencies, implicit contracts — served automatically via MCP.</p>
+</div>
+</div>
+</section>
+
+<section class="proof">
+<div class="inner">
+<div class="proof-text">
+<h2>Built for real codebases.</h2>
+<p>Rust daemon running continuous AST ingestion. Double-buffered mmap matrices borrowed from HFT infrastructure. RCU epoch locks guarantee agents never read stale state. Save a file — the graph updates before your cursor moves.</p>
+</div>
+<div class="proof-nums">
+<div class="proof-num"><div class="n">100K</div><div class="l">files ingested</div></div>
+<div class="proof-num"><div class="n">~32s</div><div class="l">cold compile</div></div>
+<div class="proof-num"><div class="n">208MB</div><div class="l">RAM ceiling at scale</div></div>
+<div class="proof-num"><div class="n">0 CPU</div><div class="l">cycles per read (mmap)</div></div>
+</div>
+</div>
+</section>
+
+<section class="enterprise">
+<h2>Open source. Enterprise when you're ready.</h2>
+<p>Community edition is MIT licensed and always free. When your team runs agent fleets across multiple repos, we're here.</p>
+<div class="cta-row">
+<a href="https://github.com/nxrobins/dotscope" class="btn btn-g">View Source</a>
+<a href="mailto:nigel@supremum.io" class="btn btn-p">Talk to Us</a>
+</div>
+</section>
+
+<footer>
+<a href="https://github.com/nxrobins">Nigel Robinson</a> · MIT License · <a href="https://github.com/nxrobins/dotscope">GitHub</a> · <a href="https://pypi.org/project/dotscope/">PyPI</a>
+</footer>
+
+</body>
+</html>
